@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/rostyslavpaliuha/mongodb-performance-troubleshooter/internal/cli"
+	"github.com/RostyslavPaliuha/mongoDb-performance-troubleshooter/internal/cli"
 )
 
 func main() {

@@ -8,7 +8,7 @@ will be added after the CLI foundation is in place.
 ## Install from source
 
 ```bash
-go install github.com/rostyslavpaliuha/mongodb-performance-troubleshooter/cmd/mpt@latest
+go install github.com/RostyslavPaliuha/mongoDb-performance-troubleshooter/cmd/mpt@latest
 ```
 
 ## Usage
