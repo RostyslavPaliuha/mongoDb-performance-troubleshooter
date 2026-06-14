@@ -1,0 +1,20 @@
+# Go
+/bin/
+/dist/
+*.test
+*.out
+coverage.*
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Editor and OS metadata
+.idea/
+.vscode/
+.DS_Store
+
+# Superpowers and local worktrees
+.worktrees/
+worktrees/
