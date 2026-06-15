@@ -14,15 +14,17 @@ const usageText = `MongoDB Performance Troubleshooter (mpt)
 
 Usage:
   mpt [--help]
-  mpt --version [--uri <mongodb-uri>]
-  mpt version [--uri <mongodb-uri>]
+  mpt -v
+  mpt -dbVersion [--uri <mongodb-uri>]
 
 Options:
   -h, --help            Show help.
-  --version             Show MongoDB server version.
+  -v                    Show mpt version.
+  -dbVersion            Show MongoDB server version.
   --uri <mongodb-uri>   MongoDB URI. Defaults to MONGODB_URI or mongodb://localhost:27017.
 `
 
+const version = "dev"
 const defaultMongoDBURI = "mongodb://localhost:27017"
 
 type mongoClient interface {
@@ -51,8 +53,11 @@ func RunWithDependencies(args []string, stdout, stderr io.Writer, deps Dependenc
 	case "-h", "--help":
 		fmt.Fprint(stdout, usageText)
 		return 0
-	case "version", "--version":
-		return runVersion(args[1:], stdout, stderr, deps)
+	case "-v":
+		fmt.Fprintf(stdout, "mpt %s\n", version)
+		return 0
+	case "-dbVersion":
+		return runDatabaseVersion(args[1:], stdout, stderr, deps)
 	default:
 		fmt.Fprintf(stderr, "unknown argument: %s\n\n%s", args[0], usageText)
 		return 1
@@ -79,8 +84,8 @@ func normalizeDependencies(deps Dependencies) Dependencies {
 	return deps
 }
 
-func runVersion(args []string, stdout, stderr io.Writer, deps Dependencies) int {
-	uri, err := versionURI(args, deps)
+func runDatabaseVersion(args []string, stdout, stderr io.Writer, deps Dependencies) int {
+	uri, err := databaseVersionURI(args, deps)
 	if err != nil {
 		fmt.Fprintf(stderr, "%s\n", err)
 		return 1
@@ -113,7 +118,7 @@ func runVersion(args []string, stdout, stderr io.Writer, deps Dependencies) int 
 	return 0
 }
 
-func versionURI(args []string, deps Dependencies) (string, error) {
+func databaseVersionURI(args []string, deps Dependencies) (string, error) {
 	uri := ""
 	for i := 0; i < len(args); i++ {
 		switch args[i] {

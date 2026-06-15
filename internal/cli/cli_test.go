@@ -47,22 +47,23 @@ func TestRunHelpFlagPrintsHelp(t *testing.T) {
 	}
 }
 
-func TestRunVersionFlagPrintsVersion(t *testing.T) {
+func TestRunToolVersionFlagPrintsToolVersion(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
 	deps := Dependencies{
-		Connect: fakeConnector{
-			client: fakeMongoClient{version: mongodb.Version{Major: 6, Minor: 0, Patch: 15}},
-		}.Connect,
+		Connect: func(context.Context, mongodb.Config) (mongoClient, error) {
+			t.Fatal("tool version must not connect to MongoDB")
+			return nil, nil
+		},
 	}
 
-	code := RunWithDependencies([]string{"--version"}, &stdout, &stderr, deps)
+	code := RunWithDependencies([]string{"-v"}, &stdout, &stderr, deps)
 
 	if code != 0 {
 		t.Fatalf("expected exit code 0, got %d", code)
 	}
-	if stdout.String() != "MongoDB server version: 6.0.15\n" {
+	if stdout.String() != "mpt dev\n" {
 		t.Fatalf("expected version on stdout, got %q", stdout.String())
 	}
 	if stderr.Len() != 0 {
@@ -70,7 +71,7 @@ func TestRunVersionFlagPrintsVersion(t *testing.T) {
 	}
 }
 
-func TestRunVersionCommandPrintsMongoDBServerVersion(t *testing.T) {
+func TestRunDatabaseVersionFlagPrintsMongoDBServerVersion(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
@@ -80,7 +81,7 @@ func TestRunVersionCommandPrintsMongoDBServerVersion(t *testing.T) {
 		}.Connect,
 	}
 
-	code := RunWithDependencies([]string{"version", "--uri", "mongodb://localhost:27017"}, &stdout, &stderr, deps)
+	code := RunWithDependencies([]string{"-dbVersion", "--uri", "mongodb://localhost:27017"}, &stdout, &stderr, deps)
 
 	if code != 0 {
 		t.Fatalf("expected exit code 0, got %d", code)
@@ -93,7 +94,7 @@ func TestRunVersionCommandPrintsMongoDBServerVersion(t *testing.T) {
 	}
 }
 
-func TestRunVersionCommandPrintsConnectionError(t *testing.T) {
+func TestRunDatabaseVersionFlagPrintsConnectionError(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
@@ -101,7 +102,7 @@ func TestRunVersionCommandPrintsConnectionError(t *testing.T) {
 		Connect: fakeConnector{err: errors.New("connection refused")}.Connect,
 	}
 
-	code := RunWithDependencies([]string{"version", "--uri", "mongodb://localhost:27017"}, &stdout, &stderr, deps)
+	code := RunWithDependencies([]string{"-dbVersion", "--uri", "mongodb://localhost:27017"}, &stdout, &stderr, deps)
 
 	if code != 1 {
 		t.Fatalf("expected exit code 1, got %d", code)

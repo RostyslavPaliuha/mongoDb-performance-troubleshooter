@@ -15,7 +15,8 @@ go install github.com/RostyslavPaliuha/mongoDb-performance-troubleshooter/cmd/mp
 
 ```bash
 mpt --help
-mpt version --uri mongodb://localhost:27017
+mpt -v
+mpt -dbVersion --uri mongodb://localhost:27017
 ```
 
 ## Development
