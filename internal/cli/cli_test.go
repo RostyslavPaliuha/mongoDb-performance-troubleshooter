@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"runtime/debug"
 	"testing"
 
 	"github.com/RostyslavPaliuha/mongoDb-performance-troubleshooter/internal/mongodb"
@@ -68,6 +69,49 @@ func TestRunToolVersionFlagPrintsToolVersion(t *testing.T) {
 	}
 	if stderr.Len() != 0 {
 		t.Fatalf("expected empty stderr, got %q", stderr.String())
+	}
+}
+
+func TestRunToolVersionFlagPrintsInjectedToolVersion(t *testing.T) {
+	previousVersion := version
+	version = "v0.1.0"
+	t.Cleanup(func() {
+		version = previousVersion
+	})
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run([]string{"-v"}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d", code)
+	}
+	if stdout.String() != "mpt v0.1.0\n" {
+		t.Fatalf("expected injected version on stdout, got %q", stdout.String())
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("expected empty stderr, got %q", stderr.String())
+	}
+}
+
+func TestToolVersionUsesTaggedModuleVersion(t *testing.T) {
+	info := debug.BuildInfo{
+		Main: debug.Module{Version: "v0.1.0"},
+	}
+
+	if got := toolVersion(info); got != "v0.1.0" {
+		t.Fatalf("expected tagged module version, got %q", got)
+	}
+}
+
+func TestToolVersionFallsBackToDevForLocalBuild(t *testing.T) {
+	info := debug.BuildInfo{
+		Main: debug.Module{Version: "(devel)"},
+	}
+
+	if got := toolVersion(info); got != "dev" {
+		t.Fatalf("expected dev version, got %q", got)
 	}
 }
 

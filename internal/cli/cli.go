@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime/debug"
 	"time"
 
 	"github.com/RostyslavPaliuha/mongoDb-performance-troubleshooter/internal/mongodb"
@@ -24,8 +25,9 @@ Options:
   --uri <mongodb-uri>   MongoDB URI. Defaults to MONGODB_URI or mongodb://localhost:27017.
 `
 
-const version = "dev"
 const defaultMongoDBURI = "mongodb://localhost:27017"
+
+var version = "dev"
 
 type mongoClient interface {
 	ServerVersion(context.Context) (mongodb.Version, error)
@@ -54,7 +56,7 @@ func RunWithDependencies(args []string, stdout, stderr io.Writer, deps Dependenc
 		fmt.Fprint(stdout, usageText)
 		return 0
 	case "-v":
-		fmt.Fprintf(stdout, "mpt %s\n", version)
+		fmt.Fprintf(stdout, "mpt %s\n", Version())
 		return 0
 	case "-dbVersion":
 		return runDatabaseVersion(args[1:], stdout, stderr, deps)
@@ -62,6 +64,23 @@ func RunWithDependencies(args []string, stdout, stderr io.Writer, deps Dependenc
 		fmt.Fprintf(stderr, "unknown argument: %s\n\n%s", args[0], usageText)
 		return 1
 	}
+}
+
+func Version() string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		return toolVersion(*info)
+	}
+	return version
+}
+
+func toolVersion(info debug.BuildInfo) string {
+	if version != "dev" {
+		return version
+	}
+	if info.Main.Version != "" && info.Main.Version != "(devel)" {
+		return info.Main.Version
+	}
+	return version
 }
 
 func defaultDependencies() Dependencies {
