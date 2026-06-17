@@ -19,3 +19,4 @@ coverage.*
 .worktrees/
 worktrees/
 /mpt.iml
+/.aws-sam/

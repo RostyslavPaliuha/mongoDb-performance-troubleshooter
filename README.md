@@ -17,7 +17,19 @@ go install github.com/RostyslavPaliuha/mongoDb-performance-troubleshooter/cmd/mp
 mpt --help
 mpt -v
 mpt -dbVersion --uri mongodb://localhost:27017
+mpt scan --uri mongodb://localhost:27017
+mpt scan --duration 10m --queryTime 30ms --output report.html
 ```
+
+`mpt scan` samples live MongoDB operations for slow read queries, explains safe
+read operations with execution stats, and writes a standalone HTML report with
+the slow query, bad execution statistics, likely reason, and suggested fix.
+
+Scan defaults:
+
+- `--duration`: `1m`
+- `--queryTime`: `50ms`
+- `--output`: `mpt-scan-report-<timestamp>.html` in the current directory
 
 ## Development
 
